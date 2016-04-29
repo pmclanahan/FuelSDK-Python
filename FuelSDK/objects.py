@@ -248,44 +248,14 @@ class ET_DataExtension_Row(ET_CUDSupport):
         self.last_request_id = obj.request_id               
             
         return obj
-        
+
     def post(self):
-        self.getCustomerKey()
-        originalProps = self.props
+        return self._post_patch(ET_Post)
+
+    def patch(self, updateadd=False):
+        return self._post_patch(ET_Patch, updateadd)
         
-        if type(self.props) is list:
-            currentPropList = []
-            for rec in self.props:
-                currentFields = []
-                currentProp = {}
-                
-                for key, value in rec.iteritems():
-                    currentFields.append({"Name" : key, "Value" : value})
-                
-                currentProp['CustomerKey'] = self.CustomerKey
-                currentProp['Properties'] = {}
-                currentProp['Properties']['Property'] = currentFields
-                
-                currentPropList.append(currentProp)
-            
-            currentProp = currentPropList
-
-        else:
-            currentFields = []
-            currentProp = {}
-                
-            for key, value in self.props.iteritems():
-                currentFields.append({"Name" : key, "Value" : value})
-
-            currentProp['CustomerKey'] = self.CustomerKey
-            currentProp['Properties'] = {}
-            currentProp['Properties']['Property'] = currentFields   
-
-        obj = ET_Post(self.auth_stub, self.obj_type, currentProp)   
-        self.props = originalProps
-        return obj
-        
-    def patch(self): 
+    def _post_patch(self, klass, updateadd=False):
         self.getCustomerKey()
 
         if type(self.props) is list:
@@ -314,8 +284,17 @@ class ET_DataExtension_Row(ET_CUDSupport):
             currentProp['CustomerKey'] = self.CustomerKey
             currentProp['Properties'] = {}
             currentProp['Properties']['Property'] = currentFields
-            
-        obj = ET_Patch(self.auth_stub, self.obj_type, currentProp)
+
+        if updateadd:
+            opt = self.auth_stub.soap_client.factory.create('SaveOption')
+            opt.PropertyName = '*'
+            opt.SaveAction = 'UpdateAdd'
+            opts = self.auth_stub.soap_client.factory.create('Options')
+            opts.SaveOptions.SaveOption = [opt]
+        else:
+            opts = None
+
+        obj = klass(self.auth_stub, self.obj_type, currentProp, opts)
         return obj
     
     def delete(self): 

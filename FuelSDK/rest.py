@@ -16,7 +16,7 @@ class ET_Constructor(object):
     more_results = False                
     request_id = None
     
-    def __init__(self, response = None, rest = False):
+    def __init__(self, response=None, rest=False):
         
         if response is not None:    #if a response was returned from the web service call
             if rest:    # result is from a REST web service call...
@@ -213,11 +213,13 @@ class ET_Get(ET_Constructor):
 ##
 ########
 class ET_Post(ET_Constructor):
-    def __init__(self, auth_stub, obj_type, props = None):
+    def __init__(self, auth_stub, obj_type, props=None, opts=None):
         auth_stub.refresh_token()
 
-        response = auth_stub.soap_client.service.Create(None, self.parse_props_into_ws_object(auth_stub, obj_type, props))
-        if(response is not None):
+        props = self.parse_props_into_ws_object(auth_stub, obj_type, props)
+        response = auth_stub.soap_client.service.Create(opts, props)
+
+        if response is not None:
             super(ET_Post, self).__init__(response)
 
 ########
@@ -226,12 +228,13 @@ class ET_Post(ET_Constructor):
 ##
 ########
 class ET_Patch(ET_Constructor):
-    def __init__(self, auth_stub, obj_type, props = None):
+    def __init__(self, auth_stub, obj_type, props=None, opts=None):
         auth_stub.refresh_token()
-              
-        response = auth_stub.soap_client.service.Update(None, self.parse_props_into_ws_object(auth_stub, obj_type, props))
 
-        if(response is not None):
+        props = self.parse_props_into_ws_object(auth_stub, obj_type, props)
+        response = auth_stub.soap_client.service.Update(opts, props)
+
+        if response is not None:
             super(ET_Patch, self).__init__(response)
 
 ########
@@ -240,12 +243,13 @@ class ET_Patch(ET_Constructor):
 ##
 ########
 class ET_Delete(ET_Constructor):
-    def __init__(self, auth_stub, obj_type, props = None):
+    def __init__(self, auth_stub, obj_type, props=None):
         auth_stub.refresh_token()
-              
-        response = auth_stub.soap_client.service.Delete(None, self.parse_props_into_ws_object(auth_stub, obj_type, props))
 
-        if(response is not None):
+        props = self.parse_props_into_ws_object(auth_stub, obj_type, props)
+        response = auth_stub.soap_client.service.Delete(None, props)
+
+        if response is not None:
             super(ET_Delete, self).__init__(response)
 
 ########
